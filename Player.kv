@@ -1,0 +1,93 @@
+#:kivy 1.10.1
+
+<AudioPlayer>:
+    canvas.before:
+        Color:
+            rgba : 1, 1, 1, 1
+        Rectangle:
+            pos : self.pos
+            size : self.size
+    TextInput:
+        id : direct
+        pos : 0, root.top - 35
+        size : root.width - 300, 35
+        hint_text : 'Browse Files'
+    Button:
+        id : searchBtn
+        text : 'Browse'
+        size : 150, 35
+        pos : root.width - 300, root.top - 35
+        background_color : 64/255, 134/255, 205/255, 1
+        markup : True
+        on_press : root.browse()
+    Button:
+        id : clearBtn
+        text : 'Clear'
+        size : 150, 35
+        pos : root.width - 150, root.top - 35 
+        background_color : 64/255, 134/255, 205/255, 1
+        on_press : root.clearInput()
+    ScrollView:
+        size_hint : None, None
+        size : root.width, root.height - 135
+        pos : 0, 100
+        do_scroll_y : True
+        GridLayout:
+            id : scroll
+            cols : 1
+            spacing : 0
+            size_hint_y : None
+            row_force_default : True
+            row_default_height : 40
+    GridLayout:
+        rows : 1
+        pos : 0, 50
+        size : root.width, 50
+        Button:
+            background_color : 64/255, 134/255, 205/255, 1
+            text : '<'
+            on_press : root.prev_song()
+        Button:
+            id : toggle_play_btn
+            background_color : 64/255, 134/255, 205/255, 1
+            text : '||'
+            on_press : root.toggle_play()
+        Button:
+            background_color : 64/255, 134/255, 205/255, 1
+            text : '>'
+            on_press : root.next_song()
+    Button:
+        id : currentPlay
+        text : 'Now is playing ...'
+        pos : 0, 0
+        size : root.width, 50
+        background_color : 64/255, 134/255, 205/255, 1
+    Label:
+        id : status
+        text: ''
+        center : root.center
+
+<ChooseFile>:
+    canvas.before:
+        Color:
+            rgba : 80/255, 80/255, 80/255, 1
+        Rectangle:
+            pos : self.pos
+            size : self.size
+    BoxLayout:
+        size : root.size
+        pos : root.pos
+        orientation : 'vertical'
+        FileChooserIconView:
+            id : fileChooser
+        BoxLayout:
+            size_hint_y : None
+            height : 40
+            Button:
+                text : 'Cancel'
+                background_color : 64/255, 134/255, 205/255, 1
+                on_release : root.cancel()
+            Button:
+                text : 'Select folder'
+                background_color : 64/255, 134/255, 205/255, 1
+                on_release : root.select(fileChooser.path)
