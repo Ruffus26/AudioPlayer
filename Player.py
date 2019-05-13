@@ -12,6 +12,8 @@ from kivy.uix.floatlayout import FloatLayout
 
 from os import listdir, path
 
+import sqlite3
+
 class ChooseFile(FloatLayout):
     select = ObjectProperty(None)
     cancel = ObjectProperty(None)
@@ -29,6 +31,27 @@ class AudioPlayer(Widget):
     temp_songList = []
     #List of songs paths
     songPath = []
+    #Song index
+    index = 0
+
+    def open_db(self):
+        self.connection = sqlite3.connect('AudioFiles.db')
+        self.crs = self.connection.cursor()
+        #Create table
+        self.crs.execute('CREATE TABLE IF NOT EXISTS SongList(Number INTEGER, Name TEXT, Path TEXT)')
+
+    def update_db(self, data_unit):
+        self.crs.execute('INSERT INTO SongList VALUES(? , ? , ?)', data_unit)
+        #Save changes to data base
+        self.connection.commit()
+
+    def delete_table_db(self):
+        self.crs.execute('DELETE FROM SongList')
+        self.connection.commit()
+        
+    def close_db(self):    
+        self.crs.close()
+        self.connection.close()
 
     def dismiss_popup(self):
         self._popup.dismiss()
@@ -59,6 +82,7 @@ class AudioPlayer(Widget):
             self.getSongs()
 
     def getSongs(self):
+        self.open_db()
         if not self.directory.endswith('/'):
             self.directory += '/'
 
@@ -76,7 +100,10 @@ class AudioPlayer(Widget):
                     if not fl in self.songs:
                         self.temp_songList.append(fl)
                         self.songPath.append(self.directory)
-
+                        self.index += 1
+                        tmp_List_item = [self.index, fl, self.directory]
+                        self.update_db(tmp_List_item)
+            
             #If in chosen directory are no mp3 files
             if self.temp_songList == [] and self.directory != '':
                 self.ids.status.text = 'No Music Found'
@@ -107,6 +134,7 @@ class AudioPlayer(Widget):
                 self.ids.scroll.add_widget(btn)
             self.songs.extend(self.temp_songList)
             self.temp_songList.clear()
+            self.close_db()
 
     def prev_song(self):
         if self.currentSong_index == 0:
